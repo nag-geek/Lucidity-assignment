@@ -67,13 +67,13 @@ b. cicd_iam_user — the IAM user whose credentials are stored in GitHub Secrets
 
 ## This creates:
 
-• VPC with 2 public + 2 private subnets across 2 AZs
+- VPC :  custom VPC (`10.0.0.0/16`) with 2 public and 2 private subnets spread across 2 availability zones (`ap-south-1a`, `ap-south-1b`). Worker nodes live in private subnets (not internet-accessible). Public subnets are tagged for AWS Load Balancer discovery. A single NAT Gateway handles outbound traffic from private subnets — cost optimized for this assignment (production would use one NAT Gateway per AZ for HA).
 
-• EKS cluster (v1.29) with managed node group (t3.medium, 1-3 nodes)
+- EKS Cluster :  Kubernetes v1.29 control plane with public API endpoint enabled so the GitHub Actions pipeline can authenticate and deploy remotely. Managed node group runs `t3.medium` instances with autoscaling configured (min: 1, max: 3, desired: 2). AWS manages node patching, AMI updates, and graceful drain on upgrades.
 
-• ECR repository for the application image
+- ECR Repository : private container registry for the `hello-world` image with `scan_on_push` enabled. Image scanning checks for known CVEs on every push. Native IAM integration means EKS nodes pull images without separate registry credentials.
 
-• IAM access entry for the CI/CD user
+- IAM Access Entry : grants the CI/CD IAM user `AmazonEKSClusterAdminPolicy` on the cluster using EKS's modern access management (replaces the old `aws-auth` ConfigMap approach). This allows the GitHub Actions pipeline to run `helm upgrade` against the cluster without manual kubeconfig setup.
 
 
 ## 2. Configure kubectl
