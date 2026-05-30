@@ -78,7 +78,15 @@ b. cicd_iam_user — the IAM user whose credentials are stored in GitHub Secrets
 
 ## 2. Configure kubectl
 
+
+Once the cluster is provisioned, configuring local `kubectl` to talk to it:
+
+
 aws eks update-kubeconfig --region ap-south-1 --name lucidity-cluster
+
+This fetches the cluster endpoint and auth token from AWS and writes them to ~/.kube/config. After this, any kubectl or helm command runs against the EKS cluster — same mechanism the GitHub Actions pipeline uses, just running locally instead of on a runner VM.
+
+Verify the nodes are up and ready:
 
 kubectl get nodes
 
