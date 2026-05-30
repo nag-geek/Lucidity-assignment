@@ -5,7 +5,7 @@ End-to-end deployment of a Hello World microservice on AWS EKS using Terraform, 
 # Architecture
 • Application: Python Flask service exposing /, /healthz, /metrics on port 8080.
 
-• All three endpoints (`/`, `/healthz`, `/metrics`) are served by the same Flask process on port **8080**, routed by URL path. This simplifies the service and container configuration — single port exposure in the Dockerfile, Service, and Helm chart with no additional complexity.
+• All three endpoints (`/`, `/healthz`, `/metrics`) are served by the same Flask process on port **8080**, routed by URL path. This simplifies the service and container configuration,Since all three endpoints run on the same Flask app, we just use a single port (8080) for everything. No need to configure multiple ports in the Dockerfile, Service, or Helm chart — keeps things simple.
 
 • A separate metrics port is not configured; in production, `/metrics` would typically be exposed on a dedicated port (e.g., 9090) to restrict external access via network policy or firewall rules.
 
