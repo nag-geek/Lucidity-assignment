@@ -108,12 +108,29 @@ CI/CD Flow: Any push to main branch triggers the GitHub Actions pipeline which b
 
 ## 4. Deploy Monitoring Stack
 
+Add the Prometheus community Helm repository and deploy the full monitoring stack:
+
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
 --namespace monitoring \
 --create-namespace \
 --values helm/monitoring/values.yaml
+
+
+This deploys the kube-prometheus-stack chart which includes:
+
+Prometheus : scrapes and stores metrics from the cluster and the application
+
+Grafana : visualization dashboards for all collected metrics
+
+Alertmanager : handles alerts fired by Prometheus
+node-exporter — collects host-level metrics (CPU, memory, disk) from every node
+
+kube-state-metrics : exposes Kubernetes object metrics (pod status, deployment replicas, resource requests/limits)
+
+
+Added Custom values in helm/monitoring/values.yaml which includes configure retention (15 days), resource limits, and enable scraping across all namespaces so the application's ServiceMonitor is automatically discovered.
 
 
 ## 5. Access the Services
