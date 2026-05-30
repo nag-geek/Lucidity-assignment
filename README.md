@@ -102,7 +102,7 @@ node-exporter and kube-state-metrics, bundled with the kube-prometheus-stack cha
 and terraform-aws-modules/eks/aws. Battle-tested, handles IAM, OIDC, security groups
 automatically.
 • Private subnets for nodes: Worker nodes are not internet-accessible. Egress via NAT
-Gateway only.
+Gateway only
 • Managed node groups: AWS handles patching, AMI rotation, graceful drain on upgrades.
 • Single NAT Gateway: Cost optimization for assignment. Production would use one per AZ for
 HA.
