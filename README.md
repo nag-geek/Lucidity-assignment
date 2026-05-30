@@ -78,7 +78,8 @@ b. cicd_iam_user — the IAM user whose credentials are stored in GitHub Secrets
 - This project uses an S3 bucket and DynamoDB table to securely store and lock the Terraform state (production best practice). Terraform does not create these automatically. Before running terraform init :
  
     *  Creating an S3 Bucket: Bucket in  AWS account (e.g., lucidity-tf-state-yourname-1234). Since S3 bucket names must be globally unique .
-       Creating a DynamoDB Table: DynamoDB table named terraform-state-lock with a Partition Key named LockID (Type: String). This enables state locking to prevent concurrent deployment            corruption.
+    
+    *  Creating a DynamoDB Table: DynamoDB table named terraform-state-lock with a Partition Key named LockID (Type: String). This enables state locking to prevent concurrent deployment            corruption.
 
 
 ## 2. Configure kubectl
