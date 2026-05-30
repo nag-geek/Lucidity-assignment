@@ -39,35 +39,53 @@ groups)
 ## 1. Provision Infrastructure
 
 cd terraform
+
 cat > terraform.tfvars << EOF
+
 region = "ap-south-1"
 aws_account_id = "account-id"
 cicd_iam_user = "github-actions-iam-user"
+
 EOF
+
 terraform init
+
 terraform plan
+
 terraform apply
 
 ## This creates:
+
 • VPC with 2 public + 2 private subnets across 2 AZs
+
 • EKS cluster (v1.29) with managed node group (t3.medium, 1-3 nodes)
+
 • ECR repository for the application image
+
 • IAM access entry for the CI/CD user
+
 
 ## 2. Configure kubectl
 
 aws eks update-kubeconfig --region ap-south-1 --name lucidity-cluster
+
 kubectl get nodes
+
 
 ## 3. Deploy the Application
 
- GitHub Actions (automatic on push to main)
-Add these secrets to the repo (Settings -> Secrets and variables -> Actions):
-• AWS_ACCESS_KEY_ID
-• AWS_SECRET_ACCESS_KEY
-• AWS_ACCOUNT_ID
+ GitHub Actions deploys automatically on every push to main
 
-Push to main and the pipeline builds, pushes to ECR, and deploys via Helm.
+Add the following secrets to the repository (Settings → Secrets and variables → Actions).
+
+These credentials authenticate the pipeline with AWS IAM to push images to ECR and deploy to EKS:
+
+- AWS_ACCESS_KEY_ID
+- AWS_SECRET_ACCESS_KEY
+- AWS_ACCOUNT_ID
+
+CI/CD Flow: Any push to main branch triggers the GitHub Actions pipeline which builds the Docker image, tags it with the commit SHA (`github.sha`) for traceability, pushes it to ECR, and deploys to EKS via Helm using `helm upgrade --install`.
+
 
 ## 4. Deploy Monitoring Stack
 
@@ -81,15 +99,31 @@ helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
 
 ## 5. Access the Services
 
+a. Port-forwarding is used instead of a LoadBalancer or Ingress to keep the setup cost-effective 
+
+b. and simple to evaluate — no DNS configuration, no AWS Load Balancer provisioning required. 
+
+c. In production, an Ingress with AWS Load Balancer Controller would be the correct approach.
+
+d. Grafana credentials are hardcoded in helm/monitoring/values.yaml for evaluation convenience. 
+
+e. In production, these would be stored in Kubernetes Secrets or an external secret manager like AWS Secrets Manager.
+
+
 # Application
+
 kubectl port-forward svc/hello-world 8080:80 -n lucidity
+
 curl http://localhost:8080/
 
 # Grafana
+
 kubectl port-forward svc/monitoring-grafana 3000:80 -n monitoring
 
 # Open http://localhost:3000 - login: admin / admin123
+
 # Prometheus
+
 kubectl port-forward svc/monitoring-kube-prometheus-prometheus 9090:9090 -n monitoring
 
 # Grafana Dashboards
@@ -104,8 +138,7 @@ Pod Resource Usage                            6417
 
 # How Monitoring Works
 
-The application exposes Prometheus metrics at /metrics. The Helm chart includes a
-ServiceMonitor CRD that registers the service with the Prometheus Operator. Prometheus then scrapes the application every 15 seconds.
+The application exposes Prometheus metrics at /metrics. The Helm chart includes a ServiceMonitor CRD that registers the service with the Prometheus Operator. Prometheus then scrapes the application every 15 seconds.
 
 Cluster-level metrics (node CPU/memory, pod status, API server health) are collected by
 node-exporter and kube-state-metrics, bundled with the kube-prometheus-stack chart.
@@ -113,20 +146,24 @@ node-exporter and kube-state-metrics, bundled with the kube-prometheus-stack cha
 
 # Design Decisions:
 
-• Terraform modules over raw resources: Used official terraform-aws-modules/vpc/aws
-and terraform-aws-modules/eks/aws. Battle-tested, handles IAM, OIDC, security groups
+• Terraform modules over raw resources: Used official terraform-aws-modules/vpc/aws and terraform-aws-modules/eks/aws. Battle-tested, handles IAM, OIDC, security groups
 automatically.
+
 • Private subnets for nodes: Worker nodes are not internet-accessible. Egress via NAT
 Gateway only
+
 • Managed node groups: AWS handles patching, AMI rotation, graceful drain on upgrades.
+
 • Single NAT Gateway: Cost optimization for assignment. Production would use one per AZ for
 HA.
+
 • ECR over DockerHub: Private registry, no rate limits, native IAM integration with EKS.
+
 • github.sha as image tag: Every commit produces a unique, traceable image. Enables clean
 rollbacks.
-• kube-prometheus-stack over standalone Prometheus: Brings Prometheus Operator, which
-manages scrape config via ServiceMonitor CRDs instead of manual prometheus.yaml
-edits.
+
+• kube-prometheus-stack over standalone Prometheus: Brings Prometheus Operator, which manages scrape config via ServiceMonitor CRDs instead of manual prometheus.yaml edits.
+
 • REPLACE_ME_IN_CICD placeholder: Forces image reference to come from the pipeline,
 prevents accidental hardcoded values.
 
@@ -134,8 +171,11 @@ prevents accidental hardcoded values.
 # Cleanup
 
 helm uninstall hello-world -n lucidity
+
 helm uninstall monitoring -n monitoring
+
 cd terraform
+
 terraform destroy
 
 
