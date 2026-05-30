@@ -37,6 +37,13 @@ groups)
 
 ## 1. Provision Infrastructure
 
+Before running Terraform, create a`terraform.tfvars` file with your environment-specific values.
+This file is gitignored and never committed — it holds values that change per environment.
+
+a. aws_account_id — AWS account ID, used to construct the ECR repository URL and IAM ARNs.
+
+b. cicd_iam_user — the IAM user whose credentials are stored in GitHub Secrets (AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY). This user is granted AmazonEKSClusterAdminPolicy on the cluster via the access_entries block in eks.tf, allowing the GitHub Actions pipeline to authenticate and deploy to EKS.
+
 cd terraform
 
 cat > terraform.tfvars << EOF
