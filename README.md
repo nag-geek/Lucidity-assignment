@@ -15,8 +15,7 @@ groups)
 
 • Deployment: Helm chart for the application
 
-• Monitoring: kube-prometheus-stack (Prometheus + Grafana + Alertmanager + node-exporter
-+ kube-state-metrics)
+• Monitoring: kube-prometheus-stack (Prometheus + Grafana + Alertmanager + node-exporter + kube-state-metrics).
 
 • CI/CD: GitHub Actions pipeline for build, push, and deploy
 
