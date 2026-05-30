@@ -46,7 +46,9 @@ cd terraform
 cat > terraform.tfvars << EOF
 
 region = "ap-south-1"
+
 aws_account_id = "account-id"
+
 cicd_iam_user = "github-actions-iam-user"
 
 EOF
