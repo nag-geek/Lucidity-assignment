@@ -21,11 +21,17 @@ groups)
 • CI/CD: GitHub Actions pipeline for build, push, and deploy
 
 # Prerequisites
+
 • AWS account with IAM user (programmatic access)
+
 • Terraform >= 1.5
+
 • kubectl
+
 • Helm 3
+
 • Docker
+
 • AWS CLI configured
 
 # Setup Instructions 
