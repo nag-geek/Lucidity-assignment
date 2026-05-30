@@ -169,8 +169,11 @@ After logging in, import these dashboards via Dashboards -> New -> Import:
 Dashboard                                     ID
 
 Kubernetes Cluster Overview                   315
+
 Node Exporter Full                            1860
+
 Pod Resource Usage                            6417
+
 
 # How Monitoring Works
 
