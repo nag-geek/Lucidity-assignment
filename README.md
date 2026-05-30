@@ -3,12 +3,21 @@
 End-to-end deployment of a Hello World microservice on AWS EKS using Terraform, Helm, and GitHub Actions, with Prometheus + Grafana for observability.
 
 # Architecture
-• Application: Python Flask service exposing /, /healthz, /metrics on port 8080
+• Application: Python Flask service exposing /, /healthz, /metrics on port 8080.
+
+• All three endpoints (`/`, `/healthz`, `/metrics`) are served by the same Flask process on port **8080**, routed by URL path. This simplifies the service and container configuration — single port exposure in the Dockerfile, Service, and Helm chart with no additional complexity.
+
+• A separate metrics port is not configured; in production, `/metrics` would typically be exposed on a dedicated port (e.g., 9090) to restrict external access via network policy or firewall rules.
+
+
 • Infrastructure: AWS EKS cluster provisioned via Terraform (VPC, EKS, ECR, managed node
 groups)
+
 • Deployment: Helm chart for the application
+
 • Monitoring: kube-prometheus-stack (Prometheus + Grafana + Alertmanager + node-exporter
 + kube-state-metrics)
+
 • CI/CD: GitHub Actions pipeline for build, push, and deploy
 
 # Prerequisites
